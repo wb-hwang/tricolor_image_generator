@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>三色重叠图生成器</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+
+    :root {
+      color-scheme: light;
+      font-family: "Noto Sans SC", "Segoe UI", sans-serif;
+      background: #f5f5f5;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 360px minmax(360px, 1fr);
+      gap: 24px;
+      width: 100%;
+      max-width: 1200px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+      padding: 24px;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+      max-height: calc(100vh - 120px);
+      padding-right: 8px;
+    }
+
+    .control-group {
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .control-group h2 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 14px;
+      color: #374151;
+      margin-bottom: 12px;
+    }
+
+    label:last-of-type {
+      margin-bottom: 0;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+
+    input[type="color"] {
+      width: 100%;
+      height: 36px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .canvas-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background: linear-gradient(135deg, #f3f4f6, #fff);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    button {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 999px;
+      background: #2563eb;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
+    }
+
+    @media (max-width: 960px) {
+      body {
+        padding: 16px;
+      }
+
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        max-height: unset;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <main class="container" v-cloak>
+      <section class="controls">
+        <div class="control-group">
+          <h2>圆形配置</h2>
+          <label v-for="(circle, idx) in circles" :key="idx">
+            圆 {{ idx + 1 }} 颜色
+            <input type="color" v-model="circle.color" />
+          </label>
+        </div>
+
+        <div class="control-group">
+          <h2>文本配置</h2>
+          <div v-for="(text, key) in texts" :key="key">
+            <label>
+              {{ text.label }} 文本
+              <input type="text" v-model="text.value" />
+            </label>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h2>导出设置</h2>
+          <label>
+            格式
+            <select v-model="exportFormat">
+              <option value="png">PNG</option>
+              <option value="jpeg">JPEG</option>
+              <option value="webp">WebP</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="canvas-wrapper">
+        <canvas ref="canvas" width="512" height="512"></canvas>
+        <div class="actions">
+          <button type="button" @click="resetDefaults">重置默认值</button>
+          <button type="button" @click="downloadImage">导出图片</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const { createApp, onMounted, reactive, ref, watch } = Vue;
+
+    const CANVAS_SIZE = 512;
+    const EXPORT_SIZE = 2048;
+    const CIRCLE_ALPHA = 0.7;
+    const CIRCLE_RADIUS = 140;
+
+    const createDefaults = () => ({
+      circles: [
+        { color: "#da3c41", cx: 0.5, cy: 0.37 },
+        { color: "#efe64d", cx: 0.33, cy: 0.68 },
+        { color: "#53aedc", cx: 0.67, cy: 0.68 },
+      ],
+      texts: {
+        top: {
+          label: "上方文本",
+          value: "稳定",
+          x: 0.5,
+          y: 0.26,
+          color: "#111827",
+          fontSize: 38,
+          fontWeight: 600,
+        },
+        left: {
+          label: "左下文本",
+          value: "速度",
+          x: 0.24,
+          y: 0.7,
+          color: "#111827",
+          fontSize: 38,
+          fontWeight: 600,
+        },
+        right: {
+          label: "右下文本",
+          value: "便宜",
+          x: 0.76,
+          y: 0.7,
+          color: "#111827",
+          fontSize: 38,
+          fontWeight: 600,
+        },
+        overlapTopLeft: {
+          label: "上左重叠文本",
+          value: "贵",
+          x: 0.36,
+          y: 0.50,
+          color: "#ffffff",
+          fontSize: 32,
+          fontWeight: 600,
+        },
+        overlapTopRight: {
+          label: "上右重叠文本",
+          value: "慢",
+          x: 0.64,
+          y: 0.50,
+          color: "#ffffff",
+          fontSize: 32,
+          fontWeight: 600,
+        },
+        overlapBottom: {
+          label: "下方重叠文本",
+          value: "差",
+          x: 0.5,
+          y: 0.75,
+          color: "#ffffff",
+          fontSize: 32,
+          fontWeight: 600,
+        },
+        center: {
+          label: "中心文本",
+          value: "滚",
+          x: 0.5,
+          y: 0.57,
+          color: "#ffffff",
+          fontSize: 38,
+          fontWeight: 700,
+        },
+      },
+      exportFormat: "webp",
+    });
+
+    createApp({
+      setup() {
+        const canvas = ref(null);
+        const defaults = createDefaults();
+
+        const circles = reactive(defaults.circles.map((circle) => ({ ...circle })));
+        const texts = reactive(
+          Object.fromEntries(
+            Object.entries(defaults.texts).map(([key, config]) => [key, { ...config }])
+          )
+        );
+        const exportFormat = ref(defaults.exportFormat);
+
+        const renderScene = (ctx, size) => {
+          const scale = size / CANVAS_SIZE;
+          ctx.clearRect(0, 0, size, size);
+
+          ctx.save();
+          ctx.globalAlpha = CIRCLE_ALPHA;
+
+          circles.forEach((circle) => {
+            ctx.fillStyle = circle.color;
+            ctx.beginPath();
+            ctx.arc(
+              circle.cx * size,
+              circle.cy * size,
+              CIRCLE_RADIUS * scale,
+              0,
+              Math.PI * 2
+            );
+            ctx.fill();
+          });
+
+          ctx.restore();
+
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          const fontFamily = '"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif';
+
+          Object.values(texts).forEach((config) => {
+            if (!config.value) {
+              return;
+            }
+            ctx.fillStyle = config.color;
+            const fontSize = (config.fontSize || 48) * scale;
+            const weight = config.fontWeight || 500;
+            ctx.font = `${weight} ${fontSize}px ${fontFamily}`;
+            ctx.fillText(
+              config.value,
+              config.x * size,
+              config.y * size
+            );
+          });
+        };
+
+        const draw = () => {
+          const element = canvas.value;
+          if (!element) return;
+
+          const ctx = element.getContext("2d");
+          if (!ctx) return;
+
+          renderScene(ctx, CANVAS_SIZE);
+        };
+
+        const resetDefaults = () => {
+          const fresh = createDefaults();
+          circles.forEach((circle, index) => {
+            Object.assign(circle, fresh.circles[index]);
+          });
+          Object.entries(fresh.texts).forEach(([key, config]) => {
+            Object.assign(texts[key], config);
+          });
+          exportFormat.value = fresh.exportFormat;
+          draw();
+        };
+
+        const downloadImage = () => {
+          const mime =
+            exportFormat.value === "png"
+              ? "image/png"
+              : exportFormat.value === "jpeg"
+              ? "image/jpeg"
+              : "image/webp";
+
+          const exportCanvas = document.createElement("canvas");
+          exportCanvas.width = EXPORT_SIZE;
+          exportCanvas.height = EXPORT_SIZE;
+
+          const exportCtx = exportCanvas.getContext("2d");
+          if (!exportCtx) return;
+
+          renderScene(exportCtx, EXPORT_SIZE);
+
+          const dataUrl = exportCanvas.toDataURL(mime, 1.0);
+
+          const timestamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0];
+          const extension = exportFormat.value === "jpeg" ? "jpg" : exportFormat.value;
+          const link = document.createElement("a");
+          link.download = `tricolor-${timestamp}.${extension}`;
+          link.href = dataUrl;
+          link.click();
+        };
+
+        watch(
+          [
+            () => circles.map((circle) => ({ ...circle })),
+            () =>
+              Object.fromEntries(
+                Object.entries(texts).map(([key, config]) => [
+                  key,
+                  { value: config.value },
+                ])
+              ),
+          ],
+          draw,
+          { deep: true, immediate: true }
+        );
+
+        onMounted(draw);
+
+        return {
+          canvas,
+          circles,
+          texts,
+          exportFormat,
+          resetDefaults,
+          downloadImage,
+        };
+      },
+    }).mount("#app");
+  </script>
+</body>
+</html>
