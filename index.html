@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,13 +8,17 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <style>
     [v-cloak] {
-      display: none;
+      display: none
     }
 
     :root {
       color-scheme: light;
       font-family: "Noto Sans SC", "Segoe UI", sans-serif;
-      background: #f5f5f5;
+      background: #f5f5f5
+    }
+
+    * {
+      box-sizing: border-box
     }
 
     body {
@@ -21,7 +26,7 @@
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      padding: 24px;
+      padding: 24px
     }
 
     .container {
@@ -32,8 +37,8 @@
       max-width: 1200px;
       background: #fff;
       border-radius: 16px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
-      padding: 24px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, .08);
+      padding: 24px
     }
 
     .controls {
@@ -42,20 +47,20 @@
       gap: 16px;
       overflow-y: auto;
       max-height: calc(100vh - 120px);
-      padding-right: 8px;
+      padding-right: 8px
     }
 
     .control-group {
       border: 1px solid #e4e4e7;
       border-radius: 12px;
-      padding: 16px;
+      padding: 16px
     }
 
     .control-group h2 {
       margin: 0 0 12px;
       font-size: 16px;
       font-weight: 600;
-      color: #111827;
+      color: #111827
     }
 
     label {
@@ -64,11 +69,11 @@
       gap: 6px;
       font-size: 14px;
       color: #374151;
-      margin-bottom: 12px;
+      margin-bottom: 12px
     }
 
     label:last-of-type {
-      margin-bottom: 0;
+      margin-bottom: 0
     }
 
     input[type="text"],
@@ -78,22 +83,75 @@
       padding: 8px 10px;
       border-radius: 8px;
       border: 1px solid #d1d5db;
-      font-size: 14px;
+      font-size: 14px
     }
 
     input[type="color"] {
-      width: 100%;
       height: 36px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      padding: 0;
+      overflow: hidden
+    }
+
+    .circle-color {
+      width: 32px !important;
+      height: 32px !important;
+      flex-shrink: 0
+    }
+
+    input[type="file"] {
+      font-size: 13px
+    }
+
+    .preset-list {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .preset-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1px #d1d5db;
+      cursor: pointer;
+      padding: 0;
+      overflow: hidden;
+      display: flex
+    }
+
+    .preset-btn span {
+      flex: 1;
+      height: 100%
+    }
+
+    .toggle-group {
+      display: flex;
+      gap: 12px
+    }
+
+    .radio-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+      font-size: 13px;
+      cursor: pointer
+    }
+
+    .radio-label input {
+      width: auto;
+      margin: 0
     }
 
     .canvas-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
+      gap: 16px
     }
 
     canvas {
@@ -101,14 +159,14 @@
       height: auto;
       border-radius: 12px;
       border: 1px solid #e5e7eb;
-      background: linear-gradient(135deg, #f3f4f6, #fff);
+      background: linear-gradient(135deg, #f3f4f6, #fff)
     }
 
     .actions {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
-      justify-content: center;
+      justify-content: center
     }
 
     button {
@@ -119,69 +177,206 @@
       color: #fff;
       font-size: 14px;
       cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      transition: transform .15s, box-shadow .15s
     }
 
     button:hover {
       transform: translateY(-1px);
-      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
+      box-shadow: 0 8px 16px rgba(37, 99, 235, .2)
+    }
+
+    .config-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+      border-bottom: 1px dashed #eee
+    }
+
+    .config-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0
+    }
+
+    .circle-color {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      flex-shrink: 0
+    }
+
+    .alpha-group {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .alpha-label {
+      font-size: 12px;
+      color: #666;
+      width: 32px;
+      text-align: right
+    }
+
+    .text-item {
+      margin-bottom: 12px;
+      border-bottom: 1px dashed #eee;
+      padding-bottom: 12px
+    }
+
+    .text-item:last-child {
+      border-bottom: none
+    }
+
+    .text-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px
+    }
+
+    .text-label {
+      font-weight: 600;
+      font-size: 14px;
+      color: #111827
+    }
+
+    .input-row {
+      margin-top: 4px
+    }
+
+    .scale-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px
+    }
+
+    .group-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px
+    }
+
+    .group-header h2 {
+      margin: 0
+    }
+
+    .github-link {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      width: 40px;
+      height: 40px;
+      background: #24292f;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .15)
+    }
+
+    .github-link:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, .25)
+    }
+
+    .github-link svg {
+      width: 24px;
+      height: 24px;
+      fill: #fff
     }
 
     @media (max-width: 960px) {
       body {
-        padding: 16px;
+        padding: 16px
       }
 
       .container {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr
       }
 
       .controls {
-        max-height: unset;
+        max-height: unset
       }
     }
   </style>
 </head>
+
 <body>
+  <a href="https://github.com/wb-hwang/tricolor_image_generator" target="_blank" class="github-link"
+    title="View on GitHub">
+    <svg viewBox="0 0 16 16">
+      <path
+        d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+    </svg>
+  </a>
   <div id="app">
     <main class="container" v-cloak>
       <section class="controls">
         <div class="control-group">
-          <h2>圆形配置</h2>
-          <label v-for="(circle, idx) in circles" :key="idx">
-            圆 {{ idx + 1 }} 颜色
-            <input type="color" v-model="circle.color" />
-          </label>
+          <div class="group-header">
+            <h2>圆形配置</h2>
+            <div class="preset-list">
+              <button v-for="(p, i) in presets" :key="i" class="preset-btn" type="button" :title="p.name"
+                @click="applyPreset(p.colors)">
+                <span v-for="c in p.colors" :style="{background:c}"></span>
+              </button>
+            </div>
+          </div>
+          <div v-for="(c, i) in circles" :key="i" class="config-item">
+            <div class="text-label">圆 {{ i + 1 }}</div>
+            <input type="color" v-model="c.color" class="circle-color" />
+            <div class="alpha-group">
+              <input type="range" min="0" max="1" step="0.01" v-model.number="c.alpha" style="flex:1;min-width:60px">
+              <span class="alpha-label">{{ Math.round(c.alpha * 100) }}%</span>
+            </div>
+          </div>
         </div>
 
         <div class="control-group">
           <h2>文本配置</h2>
-          <div v-for="(text, key) in texts" :key="key">
-            <label>
-              {{ text.label }} 文本
-              <input type="text" v-model="text.value" />
-            </label>
+          <div v-for="(t, k) in texts" :key="k" class="text-item">
+            <div class="text-header">
+              <div class="text-label">{{ t.label }}</div>
+              <div class="toggle-group">
+                <label class="radio-label"><input type="radio" :name="'t-'+k" value="text" v-model="t.type"> 文字</label>
+                <label class="radio-label"><input type="radio" :name="'t-'+k" value="image" v-model="t.type"> 图片</label>
+              </div>
+            </div>
+            <div class="input-row">
+              <input v-if="t.type==='text'" type="text" v-model="t.value" placeholder="请输入文本" />
+              <template v-else>
+                <input type="file" accept="image/*" @change="e=>loadImg(k,e)" style="margin-bottom:4px" />
+                <div class="scale-row">
+                  <span>缩放 {{ t.scale }}x</span>
+                  <input type="range" min="0.1" max="5" step="0.1" v-model.number="t.scale" style="flex:1">
+                </div>
+              </template>
+            </div>
           </div>
         </div>
 
         <div class="control-group">
           <h2>导出设置</h2>
-          <label>
-            格式
-            <select v-model="exportFormat">
+          <label>格式 <select v-model="fmt">
               <option value="png">PNG</option>
               <option value="jpeg">JPEG</option>
               <option value="webp">WebP</option>
-            </select>
-          </label>
+            </select></label>
         </div>
       </section>
 
       <section class="canvas-wrapper">
-        <canvas ref="canvas" width="512" height="512"></canvas>
+        <canvas ref="cvs" width="512" height="512"></canvas>
         <div class="actions">
-          <button type="button" @click="resetDefaults">重置默认值</button>
-          <button type="button" @click="downloadImage">导出图片</button>
+          <button type="button" @click="reset">重置默认值</button>
+          <button type="button" @click="save">导出图片</button>
         </div>
       </section>
     </main>
@@ -189,217 +384,94 @@
 
   <script>
     const { createApp, onMounted, reactive, ref, watch } = Vue;
-
-    const CANVAS_SIZE = 512;
-    const EXPORT_SIZE = 2048;
-    const CIRCLE_ALPHA = 0.7;
-    const CIRCLE_RADIUS = 140;
-
-    const createDefaults = () => ({
-      circles: [
-        { color: "#da3c41", cx: 0.5, cy: 0.37 },
-        { color: "#efe64d", cx: 0.33, cy: 0.68 },
-        { color: "#53aedc", cx: 0.67, cy: 0.68 },
-      ],
-      texts: {
-        top: {
-          label: "上方文本",
-          value: "稳定",
-          x: 0.5,
-          y: 0.26,
-          color: "#111827",
-          fontSize: 38,
-          fontWeight: 600,
-        },
-        left: {
-          label: "左下文本",
-          value: "速度",
-          x: 0.24,
-          y: 0.7,
-          color: "#111827",
-          fontSize: 38,
-          fontWeight: 600,
-        },
-        right: {
-          label: "右下文本",
-          value: "便宜",
-          x: 0.76,
-          y: 0.7,
-          color: "#111827",
-          fontSize: 38,
-          fontWeight: 600,
-        },
-        overlapTopLeft: {
-          label: "上左重叠文本",
-          value: "贵",
-          x: 0.36,
-          y: 0.50,
-          color: "#ffffff",
-          fontSize: 32,
-          fontWeight: 600,
-        },
-        overlapTopRight: {
-          label: "上右重叠文本",
-          value: "慢",
-          x: 0.64,
-          y: 0.50,
-          color: "#ffffff",
-          fontSize: 32,
-          fontWeight: 600,
-        },
-        overlapBottom: {
-          label: "下方重叠文本",
-          value: "差",
-          x: 0.5,
-          y: 0.75,
-          color: "#ffffff",
-          fontSize: 32,
-          fontWeight: 600,
-        },
-        center: {
-          label: "中心文本",
-          value: "滚",
-          x: 0.5,
-          y: 0.57,
-          color: "#ffffff",
-          fontSize: 38,
-          fontWeight: 700,
-        },
-      },
-      exportFormat: "webp",
-    });
+    const SIZE = 512, EXP = 2048, R = 140;
+    const PRESETS = [
+      { name: "经典红黄蓝", colors: ["#da3c41", "#efe64d", "#53aedc"] },
+      { name: "CMYK风格", colors: ["#00ffff", "#ff00ff", "#ffff00"] },
+      { name: "RGB风格", colors: ["#ff0000", "#00ff00", "#0000ff"] },
+      { name: "暗黑霓虹", colors: ["#7c3aed", "#10b981", "#f59e0b"] },
+      { name: "清新马卡龙", colors: ["#ffb7b2", "#e2f0cb", "#c7ceea"] },
+    ];
+    const DEF_TEXTS = {
+      top: { label: "上方文本", value: "稳定", x: .5, y: .26, fs: 38, fw: 600, fc: "#111827" },
+      left: { label: "左下文本", value: "速度", x: .24, y: .7, fs: 38, fw: 600, fc: "#111827" },
+      right: { label: "右下文本", value: "便宜", x: .76, y: .7, fs: 38, fw: 600, fc: "#111827" },
+      overlapTopLeft: { label: "上左重叠文本", value: "贵", x: .36, y: .5, fs: 32, fw: 600, fc: "#fff" },
+      overlapTopRight: { label: "上右重叠文本", value: "慢", x: .64, y: .5, fs: 32, fw: 600, fc: "#fff" },
+      overlapBottom: { label: "下方重叠文本", value: "差", x: .5, y: .75, fs: 32, fw: 600, fc: "#fff" },
+      center: { label: "中心文本", value: "滚", x: .5, y: .57, fs: 38, fw: 700, fc: "#fff" },
+    };
+    const initTexts = () => Object.fromEntries(Object.entries(DEF_TEXTS).map(([k, v]) => [k, { ...v, type: "text", img: null, scale: 1 }]));
 
     createApp({
       setup() {
-        const canvas = ref(null);
-        const defaults = createDefaults();
+        const cvs = ref(null);
+        const circles = reactive([
+          { color: "#da3c41", cx: .5, cy: .37, alpha: .7 },
+          { color: "#efe64d", cx: .33, cy: .68, alpha: .7 },
+          { color: "#53aedc", cx: .67, cy: .68, alpha: .7 },
+        ]);
+        const texts = reactive(initTexts());
+        const fmt = ref("webp");
+        const font = '"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif';
 
-        const circles = reactive(defaults.circles.map((circle) => ({ ...circle })));
-        const texts = reactive(
-          Object.fromEntries(
-            Object.entries(defaults.texts).map(([key, config]) => [key, { ...config }])
-          )
-        );
-        const exportFormat = ref(defaults.exportFormat);
-
-        const renderScene = (ctx, size) => {
-          const scale = size / CANVAS_SIZE;
-          ctx.clearRect(0, 0, size, size);
-
-          ctx.save();
-          ctx.globalAlpha = CIRCLE_ALPHA;
-
-          circles.forEach((circle) => {
-            ctx.fillStyle = circle.color;
+        const render = (ctx, s) => {
+          const sc = s / SIZE;
+          ctx.clearRect(0, 0, s, s);
+          circles.forEach(c => {
+            ctx.save();
+            ctx.globalAlpha = c.alpha;
+            ctx.fillStyle = c.color;
             ctx.beginPath();
-            ctx.arc(
-              circle.cx * size,
-              circle.cy * size,
-              CIRCLE_RADIUS * scale,
-              0,
-              Math.PI * 2
-            );
+            ctx.arc(c.cx * s, c.cy * s, R * sc, 0, Math.PI * 2);
             ctx.fill();
+            ctx.restore();
           });
-
-          ctx.restore();
-
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          const fontFamily = '"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif';
-
-          Object.values(texts).forEach((config) => {
-            if (!config.value) {
-              return;
+          Object.values(texts).forEach(t => {
+            if (t.type === "image" && t.img?.complete && t.img.naturalHeight) {
+              const base = t.fs * 3 * sc * t.scale, asp = t.img.naturalWidth / t.img.naturalHeight;
+              const w = asp > 1 ? base : base * asp, h = asp > 1 ? base / asp : base;
+              ctx.drawImage(t.img, t.x * s - w / 2, t.y * s - h / 2, w, h);
+            } else if (t.type !== "image" && t.value) {
+              ctx.fillStyle = t.fc;
+              ctx.font = `${t.fw} ${t.fs * sc}px ${font}`;
+              ctx.fillText(t.value, t.x * s, t.y * s);
             }
-            ctx.fillStyle = config.color;
-            const fontSize = (config.fontSize || 48) * scale;
-            const weight = config.fontWeight || 500;
-            ctx.font = `${weight} ${fontSize}px ${fontFamily}`;
-            ctx.fillText(
-              config.value,
-              config.x * size,
-              config.y * size
-            );
           });
         };
 
-        const draw = () => {
-          const element = canvas.value;
-          if (!element) return;
-
-          const ctx = element.getContext("2d");
-          if (!ctx) return;
-
-          renderScene(ctx, CANVAS_SIZE);
+        const draw = () => { const el = cvs.value; el && render(el.getContext("2d"), SIZE); };
+        const loadImg = (k, e) => {
+          const f = e.target.files[0]; if (!f) return;
+          const r = new FileReader();
+          r.onload = ev => { const i = new Image(); i.onload = () => { texts[k].img = i; draw(); }; i.src = ev.target.result; };
+          r.readAsDataURL(f);
         };
-
-        const resetDefaults = () => {
-          const fresh = createDefaults();
-          circles.forEach((circle, index) => {
-            Object.assign(circle, fresh.circles[index]);
-          });
-          Object.entries(fresh.texts).forEach(([key, config]) => {
-            Object.assign(texts[key], config);
-          });
-          exportFormat.value = fresh.exportFormat;
+        const applyPreset = colors => { colors.forEach((c, i) => circles[i] && (circles[i].color = c)); draw(); };
+        const reset = () => {
+          circles.forEach((c, i) => Object.assign(c, [{ color: "#da3c41", cx: .5, cy: .37, alpha: .7 }, { color: "#efe64d", cx: .33, cy: .68, alpha: .7 }, { color: "#53aedc", cx: .67, cy: .68, alpha: .7 }][i]));
+          Object.assign(texts, initTexts());
+          fmt.value = "webp";
           draw();
         };
-
-        const downloadImage = () => {
-          const mime =
-            exportFormat.value === "png"
-              ? "image/png"
-              : exportFormat.value === "jpeg"
-              ? "image/jpeg"
-              : "image/webp";
-
-          const exportCanvas = document.createElement("canvas");
-          exportCanvas.width = EXPORT_SIZE;
-          exportCanvas.height = EXPORT_SIZE;
-
-          const exportCtx = exportCanvas.getContext("2d");
-          if (!exportCtx) return;
-
-          renderScene(exportCtx, EXPORT_SIZE);
-
-          const dataUrl = exportCanvas.toDataURL(mime, 1.0);
-
-          const timestamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0];
-          const extension = exportFormat.value === "jpeg" ? "jpg" : exportFormat.value;
-          const link = document.createElement("a");
-          link.download = `tricolor-${timestamp}.${extension}`;
-          link.href = dataUrl;
-          link.click();
+        const save = () => {
+          const c = document.createElement("canvas"); c.width = c.height = EXP;
+          render(c.getContext("2d"), EXP);
+          const a = document.createElement("a");
+          a.download = `tricolor-${new Date().toISOString().replace(/[-:]/g, "").split(".")[0]}.${fmt.value === "jpeg" ? "jpg" : fmt.value}`;
+          a.href = c.toDataURL(`image/${fmt.value}`, 1);
+          a.click();
         };
 
-        watch(
-          [
-            () => circles.map((circle) => ({ ...circle })),
-            () =>
-              Object.fromEntries(
-                Object.entries(texts).map(([key, config]) => [
-                  key,
-                  { value: config.value },
-                ])
-              ),
-          ],
-          draw,
-          { deep: true, immediate: true }
-        );
-
+        watch([() => circles.map(c => ({ ...c })), () => Object.fromEntries(Object.entries(texts).map(([k, t]) => [k, { value: t.value, type: t.type, scale: t.scale }]))], draw, { deep: true, immediate: true });
         onMounted(draw);
 
-        return {
-          canvas,
-          circles,
-          texts,
-          exportFormat,
-          resetDefaults,
-          downloadImage,
-        };
+        return { cvs, circles, texts, fmt, presets: PRESETS, loadImg, applyPreset, reset, save };
       },
     }).mount("#app");
   </script>
 </body>
+
 </html>
