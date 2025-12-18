@@ -350,7 +350,10 @@
               </div>
             </div>
             <div class="input-row">
-              <input v-if="t.type==='text'" type="text" v-model="t.value" placeholder="请输入文本" />
+              <div v-if="t.type==='text'" style="display:flex;gap:8px;align-items:center">
+                <input type="text" v-model="t.value" placeholder="请输入文本" style="flex:1" />
+                <input type="range" min="12" max="100" v-model.number="t.fs" style="width:80px" title="调整字体大小" />
+              </div>
               <template v-else>
                 <input type="file" accept="image/*" @change="e=>loadImg(k,e)" style="margin-bottom:4px" />
                 <div class="scale-row">
@@ -374,6 +377,10 @@
 
       <section class="canvas-wrapper">
         <canvas ref="cvs" width="512" height="512"></canvas>
+        <div style="width:100%;display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:0 8px">
+          <span style="font-size:14px;color:#555;white-space:nowrap">区域大小</span>
+          <input type="range" min="50" max="240" v-model.number="mainRadius" style="flex:1" />
+        </div>
         <div class="actions">
           <button type="button" @click="reset">重置默认值</button>
           <button type="button" @click="save">导出图片</button>
@@ -384,7 +391,7 @@
 
   <script>
     const { createApp, onMounted, reactive, ref, watch } = Vue;
-    const SIZE = 512, EXP = 2048, R = 140;
+    const SIZE = 512, EXP = 2048;
     const PRESETS = [
       { name: "经典红黄蓝", colors: ["#da3c41", "#efe64d", "#53aedc"] },
       { name: "CMYK风格", colors: ["#00ffff", "#ff00ff", "#ffff00"] },
@@ -406,6 +413,7 @@
     createApp({
       setup() {
         const cvs = ref(null);
+        const mainRadius = ref(140);
         const circles = reactive([
           { color: "#da3c41", cx: .5, cy: .37, alpha: .7 },
           { color: "#efe64d", cx: .33, cy: .68, alpha: .7 },
@@ -423,7 +431,7 @@
             ctx.globalAlpha = c.alpha;
             ctx.fillStyle = c.color;
             ctx.beginPath();
-            ctx.arc(c.cx * s, c.cy * s, R * sc, 0, Math.PI * 2);
+            ctx.arc(c.cx * s, c.cy * s, mainRadius.value * sc, 0, Math.PI * 2);
             ctx.fill();
             ctx.restore();
           });
@@ -453,6 +461,7 @@
         const reset = () => {
           circles.forEach((c, i) => Object.assign(c, [{ color: "#da3c41", cx: .5, cy: .37, alpha: .7 }, { color: "#efe64d", cx: .33, cy: .68, alpha: .7 }, { color: "#53aedc", cx: .67, cy: .68, alpha: .7 }][i]));
           Object.assign(texts, initTexts());
+          mainRadius.value = 140;
           fmt.value = "webp";
           draw();
         };
@@ -465,10 +474,10 @@
           a.click();
         };
 
-        watch([() => circles.map(c => ({ ...c })), () => Object.fromEntries(Object.entries(texts).map(([k, t]) => [k, { value: t.value, type: t.type, scale: t.scale }]))], draw, { deep: true, immediate: true });
+        watch([mainRadius, () => circles.map(c => ({ ...c })), () => Object.fromEntries(Object.entries(texts).map(([k, t]) => [k, { value: t.value, type: t.type, scale: t.scale, fs: t.fs }]))], draw, { deep: true, immediate: true });
         onMounted(draw);
 
-        return { cvs, circles, texts, fmt, presets: PRESETS, loadImg, applyPreset, reset, save };
+        return { cvs, circles, texts, fmt, presets: PRESETS, loadImg, applyPreset, reset, save, mainRadius };
       },
     }).mount("#app");
   </script>
